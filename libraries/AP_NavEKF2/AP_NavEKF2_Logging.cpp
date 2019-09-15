@@ -127,7 +127,6 @@ void NavEKF2::Log_Write_NKF4(uint8_t _core, LogMessages msg_id, uint64_t time_us
     getTiltError(_core,tiltError);
     uint8_t magIndex = getActiveMag(_core);
     int8_t imuIndex = getPrimaryCoreIMUIndex();
-    int8_t BaroIndex = getPrimaryCoreBaroIndex();
     int8_t primaryIndex = getPrimaryCoreIndex();
     const struct log_NKF4 pkt4{
         LOG_PACKET_HEADER_INIT(msg_id),
@@ -146,8 +145,7 @@ void NavEKF2::Log_Write_NKF4(uint8_t _core, LogMessages msg_id, uint64_t time_us
         gps : (uint16_t)(gpsStatus.value),
         primary : (int8_t)primaryIndex,
         Used_Imu : (int8_t)imuIndex,
-        Used_Mag : (uint8_t)magIndex,
-        Used_Baro : (int8_t)BaroIndex
+        Used_Mag : (uint8_t)magIndex
         
 
     };
