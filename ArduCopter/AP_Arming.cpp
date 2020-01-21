@@ -147,7 +147,7 @@ bool AP_Arming_Copter::parameter_checks(bool display_failure)
 {
     // check various parameter values
     if ((checks_to_perform == ARMING_CHECK_ALL) || (checks_to_perform & ARMING_CHECK_PARAMETERS)) {
-
+        
         // ensure all rc channels have different functions
         if (rc().duplicate_options_exist()) {
             check_failed(ARMING_CHECK_PARAMETERS, display_failure, "Duplicate Aux Switch Options");
@@ -301,6 +301,7 @@ bool AP_Arming_Copter::motor_checks(bool display_failure)
     if (!check_enabled(ARMING_CHECK_PARAMETERS)) {
         return true;
     }
+
 
     // if this is a multicopter using ToshibaCAN ESCs ensure MOT_PMW_MIN = 1000, MOT_PWM_MAX = 2000
 #if HAL_WITH_UAVCAN && (FRAME_CONFIG != HELI_FRAME)
