@@ -147,6 +147,13 @@ bool AP_Arming_Copter::parameter_checks(bool display_failure)
 {
     // check various parameter values
     if ((checks_to_perform == ARMING_CHECK_ALL) || (checks_to_perform & ARMING_CHECK_PARAMETERS)) {
+     
+        // checks MOT_PWM_MIN/MAX for acceptable values
+
+        if (copter.motors->check_mot_pwm_params()) {
+            check_failed(ARMING_CHECK_PARAMETERS, display_failure, "Check MOT_PWM_MAX/MIN");
+            return false;
+        } 
 
         // ensure all rc channels have different functions
         if (rc().duplicate_options_exist()) {
