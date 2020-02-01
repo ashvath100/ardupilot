@@ -1,0 +1,3 @@
+# setup rover for steering/throttle 
+SERVO1_FUNCTION 73
+SERVO3_FUNCTION 74
