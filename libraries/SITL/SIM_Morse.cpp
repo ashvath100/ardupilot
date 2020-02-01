@@ -105,14 +105,16 @@ Morse::Morse(const char *frame_str) :
     }
 
     if (strstr(frame_option, "-rover")) {
-        output_type = OUTPUT_ROVER;
+        output_type = OUTPUT_ROVER_REGULAR;
+    } else if (strstr(frame_option, "-skid")) {
+        output_type = OUTPUT_ROVER_SKID;
     } else if (strstr(frame_option, "-quad")) {
         output_type = OUTPUT_QUAD;
     } else if (strstr(frame_option, "-pwm")) {
         output_type = OUTPUT_PWM;
     } else {
         // default to rover
-        output_type = OUTPUT_ROVER;
+        output_type = OUTPUT_QUAD;
     }
 
     for (uint8_t i=0; i<ARRAY_SIZE(sim_defaults); i++) {
@@ -340,9 +342,29 @@ bool Morse::sensors_receive(void)
 }
 
 /*
+  output control command assuming steering/throttle rover
+ */
+void Morse::output_rover_regular(const struct sitl_input &input)
+{
+    float throttle = 2*((input.servos[2]-1000)/1000.0f - 0.5f);
+    float ground_steer = 2*((input.servos[0]-1000)/1000.0f - 0.5f);
+    float max_steer = radians(60);
+    float max_force = 20;
+    float force = throttle * max_force;
+    float steer = ground_steer * max_steer;
+
+    // construct a JSON packet for steer/force
+    char buf[60];
+    snprintf(buf, sizeof(buf)-1, "{\"steer\": %.3f, \"force\": %.2f, \"brake\": %.2f}\n",
+             steer, -force, 0.0);
+    buf[sizeof(buf)-1] = 0;
+
+    control_sock->send(buf, strlen(buf));
+}
+/*
   output control command assuming skid-steering rover
  */
-void Morse::output_rover(const struct sitl_input &input)
+void Morse::output_rover_skid(const struct sitl_input &input)
 {
     float motor1 = 2*((input.servos[0]-1000)/1000.0f - 0.5f);
     float motor2 = 2*((input.servos[2]-1000)/1000.0f - 0.5f);
@@ -510,8 +532,11 @@ void Morse::update(const struct sitl_input &input)
     update_mag_field_bf();
 
     switch (output_type) {
-    case OUTPUT_ROVER:
-        output_rover(input);
+    case OUTPUT_ROVER_REGULAR:
+        output_rover_regular(input);
+        break;
+    case OUTPUT_ROVER_SKID:
+        output_rover_skid(input);
         break;
     case OUTPUT_QUAD:
         output_quad(input);
