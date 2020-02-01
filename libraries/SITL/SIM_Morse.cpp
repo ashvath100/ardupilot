@@ -114,7 +114,7 @@ Morse::Morse(const char *frame_str) :
         output_type = OUTPUT_PWM;
     } else {
         // default to rover
-        output_type = OUTPUT_QUAD;
+        output_type = OUTPUT_ROVER_REGULAR;
     }
 
     for (uint8_t i=0; i<ARRAY_SIZE(sim_defaults); i++) {
@@ -349,8 +349,24 @@ void Morse::output_rover_regular(const struct sitl_input &input)
     float throttle = 2*((input.servos[2]-1000)/1000.0f - 0.5f);
     float ground_steer = 2*((input.servos[0]-1000)/1000.0f - 0.5f);
     float max_steer = radians(60);
-    float max_force = 20;
-    float force = throttle * max_force;
+    float max_speed = 20;
+    float max_accel = 20;
+
+     // speed in m/s in body frame
+    Vector3f velocity_body = dcm.transposed() * velocity_ef;
+
+    // speed along x axis, +ve is forward
+    float speed = velocity_body.x;
+
+    // target speed with current throttle
+    float target_speed = throttle * max_speed;
+
+    // linear acceleration in m/s/s - very crude model
+    float accel = max_accel * (target_speed - speed) / max_speed;
+
+    //force directly proportion to acceleration 
+    float force = accel;
+
     float steer = ground_steer * max_steer;
 
     // construct a JSON packet for steer/force

@@ -2,3 +2,4 @@
 # setup rover for steering/throttle 
 SERVO1_FUNCTION 26
 SERVO3_FUNCTION 70
+ATC_BRAKE 1
