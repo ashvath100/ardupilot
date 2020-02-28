@@ -204,6 +204,9 @@ void Rover::gcs_failsafe_check(void)
         return;
     }
 
+    // update AP_Notify
+    AP_Notify::flags.failsafe_gcs = true;
+
     // check for updates from GCS within 2 seconds
     failsafe_trigger(FAILSAFE_EVENT_GCS, "GCS", failsafe.last_heartbeat_ms != 0 && (millis() - failsafe.last_heartbeat_ms) > 2000);
 }
