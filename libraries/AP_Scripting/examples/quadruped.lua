@@ -44,14 +44,11 @@ TravelLengthy = 0
 TravelLengthz = 0
 CTravelDeadZone = 4
 
-local clock = os.clock
-function sleep(n)  -- seconds
-  local t0 = clock()
-  while clock() - t0 <= n do end
-end
+local notify_interval_ms = uint32_t(5000)
+local last_notify_time_ms = millis()
 
 function Gaitselect()
-    GaitLegNr = {8,15,1,22}
+    GaitLegNr = {1,15,8,22}
     NrLiftedPos = 3
     FrontDownPos = 2	
     LiftDivFactor = 2
@@ -70,7 +67,9 @@ if TravelRequest then
     do 
         Gaitgen(LegIndex)
     end
-    sleep(2)
+    
+    
+
     GaitStep = GaitStep + 1
     if (GaitStep>StepsInGait) then
         GaitStep = 1
@@ -204,9 +203,8 @@ local angle = 0.0
 
 
 function update()
-local t = 0.001 * millis():tofloat()
-local angle = math.sin(t)
-bodyPosX = math.floor(angle*20)
+Now = millis()
+
 bodyPosZ = SRV_Channels:get_output_scaled(k_throttle) * 0.2
 
 
