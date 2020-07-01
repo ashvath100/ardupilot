@@ -78,14 +78,14 @@ def control_joints(pwm):
     '''control a joint based bot'''
     global last_angles
     max_angle = radians(360)
-    joint_speed = radians(150)
+    joint_speed = radians(50)
     pwm = pwm[0:len(robot.joints)]
     angles = [ constrain((v-1500.0)/500.0, -1, 1) * max_angle for v in pwm ]
     current = last_angles
     max_change = joint_speed * TIME_STEP
     for i in range(len(angles)):
         angles[i] = constrain(angles[i], current[i]-max_change, current[i]+max_change)
-    robot.set_joint_positions(angles, robot.joints)
+    robot.set_joint_motor_control(robot.joints,2,positions=angles )
     last_angles = angles
 
 
