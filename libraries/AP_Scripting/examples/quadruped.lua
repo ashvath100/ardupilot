@@ -61,15 +61,17 @@ function Gaitselect()
         LiftDivFactor = 2
         HalfLiftHeigth = 1
         TLDivFactor = 4   
-        StepsInGait = 6     
+        StepsInGait = 6    
+        updatetime= 340 
     elseif (GaitType == 1) then
-        GaitLegNr = {5,1,9,13}
-        NrLiftedPos = 3
-        FrontDownPos = 2	
+        GaitLegNr = {6,1,11,16}
+        NrLiftedPos = 5
+        FrontDownPos = 3	
         LiftDivFactor = 2
         HalfLiftHeigth = 3
-        TLDivFactor = 12  
-        StepsInGait = 16
+        TLDivFactor = 18 
+        StepsInGait = 20
+        updatetime = 120
     end 
 end
 
@@ -224,7 +226,8 @@ angles ={FL_angles[1],FL_angles[2],FL_angles[3],FR_angles[1],FR_angles[2],FR_ang
     for i = 1, 12 do
         SRV_Channels:set_output_pwm_chan_timeout(i-1, pwm[i], 1000)
     end
-    return update, 340
+
+    return update, updatetime
 end
 
 gcs:send_text(0, "quadruped")
