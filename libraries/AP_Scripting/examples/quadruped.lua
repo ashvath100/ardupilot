@@ -25,17 +25,22 @@ endpoints2 = {math.cos(45/180*math.pi)*(L_COXA + L_FEMUR), math.sin(-45/180*math
 endpoints3 = {-math.cos(45/180*math.pi)*(L_COXA + L_FEMUR), math.sin(-45/180*math.pi)*(L_COXA + L_FEMUR),      L_TIBIA }
 endpoints4 = {-math.cos(45/180*math.pi)*(L_COXA + L_FEMUR), math.sin(45/180*math.pi)*(L_COXA + L_FEMUR),      L_TIBIA }
 
-GaitType = 0 --select a gait pattern(default gait = 0)
-LegLiftHeight = 50  --lift height while walking 
-GaitStep = 0    --gait step in exectution 
-GaitLegNr = {0,0,0,0}   --initial position of the leg
+--select a gait pattern(default gait = 0)
+GaitType = 1 
+--lift height while walking 
+LegLiftHeight = 50  
+--gait step in exectution 
+GaitStep = 0   
+--initial position of the leg
+GaitLegNr = {0,0,0,0}  
 TLDivFactor = 0       
 NrLiftedPos = 0    
 LiftDivFactor = 0    
 HalfLiftHeigth = 0     
 FrontDownPos = 0			
-TravelRequest = false        
-StepsInGait = 0  --Number of steps in gait    
+TravelRequest = false       
+--Number of steps in gait     
+StepsInGait = 0 
 GaitStep = 0         
 GaitPosX = {0,0,0,0}         
 GaitPosY = {0,0,0,0}            
@@ -44,8 +49,7 @@ GaitRotZ = {0,0,0,0}
 LegIndex = 0   
 Walking = false
 X_SPEED = 0
-Yaw_speed = 
-0
+Yaw_speed = 0
 Y_SPEED = 0
 DeadZone = 4
 
@@ -58,6 +62,14 @@ function Gaitselect()
         HalfLiftHeigth = 1
         TLDivFactor = 4   
         StepsInGait = 6     
+    elseif (GaitType == 1) then
+        GaitLegNr = {5,1,9,13}
+        NrLiftedPos = 3
+        FrontDownPos = 2	
+        LiftDivFactor = 2
+        HalfLiftHeigth = 3
+        TLDivFactor = 12  
+        StepsInGait = 16
     end 
 end
 
@@ -68,16 +80,13 @@ function Seq()
         for LegIndex=1,4,1 
         do 
             Gaitgen(LegIndex)
+        end
+
+        GaitStep = GaitStep + 1
+        if (GaitStep>StepsInGait) then
+            GaitStep = 1
+        end 
     end
-
-    GaitStep = GaitStep + 1
-    if (GaitStep>StepsInGait) then
-        GaitStep = 1
-        
-    end 
-    
-end
-
 end
 
 function Gaitgen(Gaitcurrent)
