@@ -677,6 +677,7 @@ private:
 
     // baro_ground_effect.cpp
     void update_ground_effect_detector(void);
+    void update_ekf_terrain_height_stable();
 
     // commands.cpp
     void update_home_from_EKF();
@@ -863,7 +864,7 @@ private:
     // system.cpp
     void init_ardupilot() override;
     void startup_INS_ground();
-    void update_dynamic_notch();
+    void update_dynamic_notch() override;
     bool position_ok() const;
     bool ekf_position_ok() const;
     bool optflow_position_ok() const;

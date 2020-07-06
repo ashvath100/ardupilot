@@ -222,7 +222,7 @@ public:
     void send_fence_status() const;
     void send_power_status(void);
     void send_battery_status(const uint8_t instance) const;
-    bool send_battery_status() const;
+    bool send_battery_status();
     void send_distance_sensor() const;
     // send_rangefinder sends only if a downward-facing instance is
     // found.  Rover overrides this!
@@ -264,6 +264,7 @@ public:
     void send_sys_status();
     void send_set_position_target_global_int(uint8_t target_system, uint8_t target_component, const Location& loc);
     void send_rpm() const;
+    void send_generator_status() const;
 
     // lock a channel, preventing use by MAVLink
     void lock(bool _lock) {
@@ -843,6 +844,8 @@ private:
 #endif
 
     uint32_t last_mavlink_stats_logged;
+
+    uint8_t last_battery_status_idx;
 
     // true if we should NOT do MAVLink on this port (usually because
     // someone's doing SERIAL_CONTROL over mavlink)

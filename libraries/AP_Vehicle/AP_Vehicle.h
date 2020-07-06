@@ -26,6 +26,7 @@
 #include <AP_BoardConfig/AP_BoardConfig_CAN.h>
 #include <AP_Button/AP_Button.h>
 #include <AP_GPS/AP_GPS.h>
+#include <AP_Generator/AP_Generator_RichenPower.h>
 #include <AP_Logger/AP_Logger.h>
 #include <AP_Notify/AP_Notify.h>                    // Notify library
 #include <AP_Param/AP_Param.h>
@@ -172,10 +173,17 @@ public:
     virtual bool set_target_velocity_NED(const Vector3f& vel_ned) { return false; }
     virtual bool set_target_angle_and_climbrate(float roll_deg, float pitch_deg, float yaw_deg, float climb_rate_ms, bool use_yaw_rate, float yaw_rate_degs) { return false; }
 
-
     // get target location (for use by scripting)
     virtual bool get_target_location(Location& target_loc) { return false; }
 
+    // set steering and throttle (-1 to +1) (for use by scripting with Rover)
+    virtual bool set_steering_and_throttle(float steering, float throttle) { return false; }
+
+    // write out harmonic notch log messages
+    void write_notch_log_messages() const;
+    // update the harmonic notch
+    virtual void update_dynamic_notch() {};
+    
 protected:
 
     virtual void init_ardupilot() = 0;
@@ -242,6 +250,10 @@ protected:
 
     static const struct AP_Param::GroupInfo var_info[];
     static const struct AP_Scheduler::Task scheduler_tasks[];
+
+#if GENERATOR_ENABLED
+    AP_Generator_RichenPower generator;
+#endif
 
 private:
 
