@@ -135,6 +135,12 @@ Rover::Rover(void) :
     control_mode(&mode_initializing)
 {
 }
+// get control outputs ( for use in scripting)
+bool Rover::get_control_outputs(float& throttle)
+{
+    throttle = g2.motors.get_throttle();
+    return true;
+}
 
 // set target location (for use by scripting)
 bool Rover::set_target_location(const Location& target_loc)
