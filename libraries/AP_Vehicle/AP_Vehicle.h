@@ -177,6 +177,9 @@ public:
     // get target location (for use by scripting)
     virtual bool get_target_location(Location& target_loc) { return false; }
 
+    // get control outputs ( for use in scripting)
+    virtual bool get_control_outputs(float& throttle) { return false; }
+
     // set steering and throttle (-1 to +1) (for use by scripting with Rover)
     virtual bool set_steering_and_throttle(float steering, float throttle) { return false; }
 

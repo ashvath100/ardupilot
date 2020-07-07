@@ -276,6 +276,7 @@ private:
 private:
 
     // Rover.cpp
+    bool get_control_outputs(float& throttle) override;
     bool set_target_location(const Location& target_loc) override;
     bool set_target_velocity_NED(const Vector3f& vel_ned) override;
     bool set_steering_and_throttle(float steering, float throttle) override;
