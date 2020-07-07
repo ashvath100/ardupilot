@@ -23,6 +23,7 @@
 #include <AP_Math/AP_Math.h>
 #include <AP_RCTelemetry/AP_Spektrum_Telem.h>
 #include <AP_Vehicle/AP_Vehicle_Type.h>
+#include <AP_HAL/utility/sparse-endian.h>
 
 #include "spm_srxl.h"
 
@@ -39,12 +40,17 @@ AP_RCProtocol_SRXL2* AP_RCProtocol_SRXL2::_singleton;
 AP_RCProtocol_SRXL2::AP_RCProtocol_SRXL2(AP_RCProtocol &_frontend) : AP_RCProtocol_Backend(_frontend)
 {
     const uint32_t uniqueID = AP_HAL::micros();
-
+#if !APM_BUILD_TYPE(APM_BUILD_UNKNOWN)
     if (_singleton != nullptr) {
         AP_HAL::panic("Duplicate SRXL2 handler");
     }
 
     _singleton = this;
+#else
+    if (_singleton == nullptr) {
+        _singleton = this;
+    }
+#endif
     // Init the local SRXL device
     if (!srxlInitDevice(SRXL_DEVICE_ID, SRXL_DEVICE_PRIORITY, SRXL_DEVICE_INFO, uniqueID)) {
         AP_HAL::panic("Failed to initialize SRXL2 device");
@@ -55,6 +61,10 @@ AP_RCProtocol_SRXL2::AP_RCProtocol_SRXL2(AP_RCProtocol &_frontend) : AP_RCProtoc
         AP_HAL::panic("Failed to initialize SRXL2 bus");
     }
 
+}
+
+AP_RCProtocol_SRXL2::~AP_RCProtocol_SRXL2() {
+    _singleton = nullptr;
 }
 
 void AP_RCProtocol_SRXL2::_process_byte(uint32_t timestamp_us, uint8_t byte)
@@ -149,26 +159,23 @@ void AP_RCProtocol_SRXL2::update(void)
     }
 }
 
-void AP_RCProtocol_SRXL2::capture_scaled_input(const uint16_t *values, bool in_failsafe, int16_t new_rssi)
+void AP_RCProtocol_SRXL2::capture_scaled_input(const uint8_t *values_p, bool in_failsafe, int16_t new_rssi)
 {
     AP_RCProtocol_SRXL2* srxl2 = AP_RCProtocol_SRXL2::get_singleton();
 
     if (srxl2 != nullptr) {
-        srxl2->_capture_scaled_input(values, in_failsafe, new_rssi);
+        srxl2->_capture_scaled_input(values_p, in_failsafe, new_rssi);
     }
 }
 
 // capture SRXL2 encoded values
-void AP_RCProtocol_SRXL2::_capture_scaled_input(const uint16_t *values, bool in_failsafe, int16_t new_rssi)
+void AP_RCProtocol_SRXL2::_capture_scaled_input(const uint8_t *values_p, bool in_failsafe, int16_t new_rssi)
 {
     _in_failsafe = in_failsafe;
     // AP rssi: -1 for unknown, 0 for no link, 255 for maximum link
     // SRXL2 rssi: -ve rssi in dBM, +ve rssi in percentage
     if (new_rssi >= 0) {
         _new_rssi = new_rssi * 255 / 100;
-    } else {
-        // pretty much a guess
-        _new_rssi = 255 - 255 * (-20 - new_rssi) / (-20 - 85);
     }
 
     for (uint8_t i = 0; i < MAX_CHANNELS; i++) {
@@ -203,7 +210,8 @@ void AP_RCProtocol_SRXL2::_capture_scaled_input(const uint16_t *values, bool in_
          *
          * So here we scale to DSMX-2048 and then use our regular Spektrum conversion.
          */
-        _channels[channel] = ((int32_t)(values[i] >> 5) * 1194) / 2048 + 903;
+        const uint16_t v = le16toh_ptr(&values_p[i*2]);
+        _channels[channel] = ((int32_t)(v >> 5) * 1194) / 2048 + 903;
     }
 }
 
@@ -319,9 +327,9 @@ void srxlFillTelemetry(SrxlTelemetryData* pTelemetryData)
 void srxlReceivedChannelData(SrxlChannelData* pChannelData, bool isFailsafe)
 {
     if (isFailsafe) {
-        AP_RCProtocol_SRXL2::capture_scaled_input(pChannelData->values, true, pChannelData->rssi);
+        AP_RCProtocol_SRXL2::capture_scaled_input((const uint8_t *)pChannelData->values, true, pChannelData->rssi);
     } else {
-        AP_RCProtocol_SRXL2::capture_scaled_input(srxlChData.values, false, srxlChData.rssi);
+        AP_RCProtocol_SRXL2::capture_scaled_input((const uint8_t *)srxlChData.values, false, srxlChData.rssi);
     }
 }
 

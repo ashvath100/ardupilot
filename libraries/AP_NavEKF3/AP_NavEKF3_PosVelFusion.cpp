@@ -533,15 +533,38 @@ void NavEKF3_core::SelectVelPosFusion()
         }
     }
 
-    // If we are operating without any aiding, fuse in the last known position
-    // to constrain tilt drift. This assumes a non-manoeuvring vehicle
-    // Do this to coincide with the height fusion
+    // If we are operating without any aiding, fuse in constnat position of constant
+    // velocity measurements to constrain tilt drift. This assumes a non-manoeuvring
+    // vehicle. Do this to coincide with the height fusion.
     if (fuseHgtData && PV_AidingMode == AID_NONE) {
-        velPosObs[3] = lastKnownPositionNE.x;
-        velPosObs[4] = lastKnownPositionNE.y;
-
-        fusePosData = true;
-        fuseVelData = false;
+        if (assume_zero_sideslip() && tiltAlignComplete && motorsArmed) {
+            // handle special case where we are launching a FW aircraft without magnetometer
+            fusePosData = false;
+            velPosObs[0] = 0.0f;
+            velPosObs[1] = 0.0f;
+            velPosObs[2] = stateStruct.velocity.z;
+            bool resetVelNE = !prevMotorsArmed;
+            // reset states to stop launch accel causing tilt error
+            if  (imuDataDelayed.delVel.x > 1.1f * GRAVITY_MSS * imuDataDelayed.delVelDT) {
+                lastLaunchAccelTime_ms = imuSampleTime_ms;
+                fuseVelData = false;
+                resetVelNE = true;
+            } else if (lastLaunchAccelTime_ms != 0 && (imuSampleTime_ms - lastLaunchAccelTime_ms) < 10000) {
+                fuseVelData = false;
+                resetVelNE = true;
+            } else {
+                fuseVelData = true;
+            }
+            if (resetVelNE) {
+                stateStruct.velocity.x = 0.0f;
+                stateStruct.velocity.y = 0.0f;
+            }
+        } else {
+            fusePosData = true;
+            fuseVelData = false;
+            velPosObs[3] = lastKnownPositionNE.x;
+            velPosObs[4] = lastKnownPositionNE.y;
+        }
     }
 
     // perform fusion
@@ -816,7 +839,7 @@ void NavEKF3_core::FuseVelPosNED()
                     const float gndMaxBaroErr = 4.0f;
                     const float gndBaroInnovFloor = -0.5f;
 
-                    if(getTouchdownExpected() && activeHgtSource == HGT_SOURCE_BARO) {
+                    if(expectGndEffectTouchdown && activeHgtSource == HGT_SOURCE_BARO) {
                         // when a touchdown is expected, floor the barometer innovation at gndBaroInnovFloor
                         // constrain the correction between 0 and gndBaroInnovFloor+gndMaxBaroErr
                         // this function looks like this:
@@ -1048,7 +1071,7 @@ void NavEKF3_core::selectHeightForFusion()
         }
         // filtered baro data used to provide a reference for takeoff
         // it is is reset to last height measurement on disarming in performArmingChecks()
-        if (!getTakeoffExpected()) {
+        if (!expectGndEffectTakeoff) {
             const float gndHgtFiltTC = 0.5f;
             const float dtBaro = frontend->hgtAvg_ms*1.0e-3f;
             float alpha = constrain_float(dtBaro / (dtBaro+gndHgtFiltTC),0.0f,1.0f);
@@ -1108,13 +1131,13 @@ void NavEKF3_core::selectHeightForFusion()
         fuseHgtData = true;
         // set the observation noise
         posDownObsNoise = sq(constrain_float(frontend->_baroAltNoise, 0.1f, 10.0f));
-        // reduce weighting (increase observation noise) on baro if we are likely to be in ground effect
-        if (getTakeoffExpected() || getTouchdownExpected()) {
+        // reduce weighting (increase observation noise) on baro if we are likely to be experiencing rotor wash ground interaction
+        if (expectGndEffectTakeoff || expectGndEffectTouchdown) {
             posDownObsNoise *= frontend->gndEffectBaroScaler;
         }
         // If we are in takeoff mode, the height measurement is limited to be no less than the measurement at start of takeoff
-        // This prevents negative baro disturbances due to copter downwash corrupting the EKF altitude during initial ascent
-        if (motorsArmed && getTakeoffExpected()) {
+        // This prevents negative baro disturbances due to rotor wash ground interaction corrupting the EKF altitude during initial ascent
+        if (motorsArmed && expectGndEffectTakeoff) {
             hgtMea = MAX(hgtMea, meaHgtAtTakeOff);
         }
         velPosObs[5] = -hgtMea;
