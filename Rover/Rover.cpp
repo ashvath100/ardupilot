@@ -130,17 +130,46 @@ Rover::Rover(void) :
     channel_steer(nullptr),
     channel_throttle(nullptr),
     channel_lateral(nullptr),
+    channel_roll(nullptr),
+    channel_pitch(nullptr),
     logger{g.log_bitmask},
     modes(&g.mode1),
     control_mode(&mode_initializing)
 {
 }
+
 // get control outputs ( for use in scripting)
-bool Rover::get_control_outputs(float& throttle)
+bool Rover::get_control_outputs(uint8_t control, float &speed)
 {
-    throttle = g2.motors.get_throttle();
-    return true;
+    if (control == 1) {
+        speed = g2.motors.get_throttle();
+        return true;
+    }
+    if (control == 2) {
+        speed = g2.motors.get_steering();
+        return true;
+    }
+    if (control == 3) {
+        speed = g2.motors.get_roll();
+        return true;
+    }
+    if (control == 4) {
+        speed = g2.motors.get_pitch();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+    
 }
+
+// returns true if vehicle is a walkingrobot
+bool Rover::is_walkingrobot() const
+{
+    return ((enum frame_class)g2.frame_class.get() == FRAME_WALKINGROBOT);
+}
+
 
 // set target location (for use by scripting)
 bool Rover::set_target_location(const Location& target_loc)
