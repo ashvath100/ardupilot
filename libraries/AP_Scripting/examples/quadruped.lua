@@ -26,7 +26,7 @@ endpoints3 = {-math.cos(45/180*math.pi)*(L_COXA + L_FEMUR), math.sin(-45/180*mat
 endpoints4 = {-math.cos(45/180*math.pi)*(L_COXA + L_FEMUR), math.sin(45/180*math.pi)*(L_COXA + L_FEMUR),      L_TIBIA }
 
 --select a gait pattern(default gait = 0)
-GaitType = 1 
+GaitType = 0
 --lift height while walking 
 LegLiftHeight = 50  
 --gait step in exectution 
@@ -62,7 +62,7 @@ function Gaitselect()
         HalfLiftHeigth = 1
         TLDivFactor = 4   
         StepsInGait = 6    
-        updatetime= 340 
+        updatetime= 170
     elseif (GaitType == 1) then
         GaitLegNr = {6,1,11,16}
         NrLiftedPos = 5
@@ -71,7 +71,7 @@ function Gaitselect()
         HalfLiftHeigth = 3
         TLDivFactor = 18 
         StepsInGait = 20
-        updatetime = 120
+        updatetime = 60
     end 
 end
 
@@ -88,6 +88,11 @@ function Seq()
         if (GaitStep>StepsInGait) then
             GaitStep = 1
         end 
+    else
+        GaitPosX = {0,0,0,0}         
+        GaitPosY = {0,0,0,0}            
+        GaitPosZ = {0,0,0,0}             
+        GaitRotZ = {0,0,0,0}  
     end
 end
 
@@ -164,7 +169,7 @@ function bodyik(X , Y , Z,   Xdist, Ydist,Zrot)
 end 
 
 function legik(X , Y , Z)
-    local coxa = math.atan(Y,X) 
+    local coxa = math.deg(math.atan(Y,X))
     local trueX = math.sqrt(X^2+ Y^2 ) - L_COXA
     local IKSW = math.sqrt(trueX^2 + Z^2)
 
@@ -172,11 +177,11 @@ function legik(X , Y , Z)
     local d1 = L_TIBIA^2 - L_FEMUR^2 - IKSW^2
     local d2 = -2*L_FEMUR*IKSW
     local IKA2 = math.acos(d1/d2)
-    local femur = 1.5708-(IKA1+IKA2)
+    local femur = math.deg(1.5708-(IKA1+IKA2)) 
 
     local d1 = IKSW^2 - L_TIBIA^2 - L_FEMUR^2
     local d2 = -2*IKSW*L_FEMUR
-    local tibia = 1.5708-(math.acos(d1/d2)) 
+    local tibia = math.deg(1.5708-(math.acos(d1/d2)))
     local ang = { coxa, femur ,tibia }
     return ang 
 end
@@ -187,19 +192,19 @@ function doik()
     Seq()
     local ans1 = bodyik(endpoints1[1]+GaitPosX[1], endpoints1[2]+GaitPosY[1], endpoints1[3]+GaitPosZ[1], L/2, W/2,GaitRotZ[1])
     local angles1 = legik(endpoints1[1]+ans1[1]+GaitPosX[1],endpoints1[2]+ans1[2]+GaitPosY[1], endpoints1[3]+ans1[3]+GaitPosZ[1])
-    angles1 = {-0.785398 + angles1[1],angles1[2],angles1[3]}
+    angles1 = {-45 + angles1[1],angles1[2],angles1[3]}
 
     local ans2 = bodyik(endpoints2[1]+GaitPosX[2], endpoints2[2]+GaitPosY[2], endpoints2[3]+GaitPosZ[2], L/2, -W/2,GaitRotZ[2])
     local angles2 = legik(endpoints2[1]+ans2[1]+GaitPosX[2],endpoints2[2]+ans2[2]+GaitPosY[2], endpoints2[3]+ans2[3]+GaitPosZ[2])
-    angles2 = {0.785398 + angles2[1],angles2[2],angles2[3]}
+    angles2 = {45 + angles2[1],angles2[2],angles2[3]}
 
     local ans3 = bodyik(endpoints3[1]+GaitPosX[3], endpoints3[2]+GaitPosY[3], endpoints3[3]+GaitPosZ[3], -L/2, -W/2,GaitRotZ[3])
     local angles3 = legik(endpoints3[1]+ans3[1]+GaitPosX[3],endpoints3[2]+ans3[2]+GaitPosY[3], endpoints3[3]+ans3[3]+GaitPosZ[3])
-    angles3 = {2.35619 + angles3[1],angles3[2],angles3[3]}
+    angles3 = {135 + angles3[1],angles3[2],angles3[3]}
 
     local ans4 = bodyik(endpoints4[1]+GaitPosX[4], endpoints4[2]+GaitPosY[4], endpoints4[3]+GaitPosZ[4], -L/2, W/2,GaitRotZ[4])
     local angles4 = legik(endpoints4[1]+ans4[1]+GaitPosX[4],endpoints4[2]+ans4[2]+GaitPosY[4], endpoints4[3]+ans4[3]+GaitPosZ[4])
-    angles4 = {-2.35619 + angles4[1],angles4[2],angles4[3]}
+    angles4 = {-135 + angles4[1],angles4[2],angles4[3]}
 
     return angles1,angles4,angles3,angles2
 end 
@@ -214,13 +219,12 @@ local angle = 0.0
 
 
 function update()
-X_SPEED = SRV_Channels:get_output_scaled(k_throttle) * 0.3
+X_SPEED = SRV_Channels:get_output_scaled(k_throttle) * 0.2
 Yaw_speed = SRV_Channels:get_output_scaled(k_steering) * 0.003
 FR_angles ,  BL_angles, BR_angles, FL_angles = doik()
 angles ={FL_angles[1],FL_angles[2],FL_angles[3],FR_angles[1],FR_angles[2],FR_angles[3],BL_angles[1],BL_angles[2],BL_angles[3],BR_angles[1],BR_angles[2],BR_angles[3]}
-
     for j = 1, 12 do
-        pwm[j] = math.floor(((angles[j] * 100)/51 * 100) + 1500)
+        pwm[j] = math.floor(((angles[j] * 500)/360) + 1500)
     end
 
     for i = 1, 12 do

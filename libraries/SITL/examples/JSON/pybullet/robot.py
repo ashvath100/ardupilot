@@ -73,19 +73,19 @@ def control_racecar(pwm):
     robot.drive(throttle)
 
 last_angles = [0.0] * 12
-
 def control_joints(pwm):
     '''control a joint based bot'''
-    global last_angles
-    max_angle = radians(360)
-    joint_speed = radians(50)
+    global last_angles     
+    joint_speed = radians(180)
     pwm = pwm[0:len(robot.joints)]
-    angles = [ constrain((v-1500.0)/500.0, -1, 1) * max_angle for v in pwm ]
+    print(pwm)
+    angles = [radians(((v-1500.0)*360)/500) for v in pwm ]
+    print(angles)
     current = last_angles
     max_change = joint_speed * TIME_STEP
     for i in range(len(angles)):
         angles[i] = constrain(angles[i], current[i]-max_change, current[i]+max_change)
-    robot.set_joint_motor_control(robot.joints,2,positions=angles )
+    robot.set_joint_motor_control(robot.joints,2,positions=angles)
     last_angles = angles
 
 
@@ -103,7 +103,7 @@ elif args.vehicle == 'opendog':
     control_pwm = control_joints
 elif args.vehicle == 'quadruped':
     from pyrobolearn.robots import OpenDog
-    robot = OpenDog(sim,position=(0, 0, 1.6),urdf="models/quadruped/quadruped.urdf")
+    robot = OpenDog(sim,position=(0, 0, 2.6),urdf="models/quadruped/quadruped.urdf")
     control_pwm = control_joints
     position = [10, 10, 10]
 elif args.vehicle == 'all':
@@ -119,7 +119,6 @@ else:
 
 
 sim.set_time_step(TIME_STEP)
-
 time_now = 0
 last_velocity = None
 

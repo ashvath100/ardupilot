@@ -704,7 +704,7 @@ void SITL_State::_simulator_servos(struct sitl_input &input)
 
     if (last_update_usec == 0 || !output_ready) {
         for (i=0; i<SITL_NUM_CHANNELS; i++) {
-            pwm_output[i] = 1000;
+            pwm_output[i] = 1500;
         }
         if (_vehicle == ArduPlane) {
             pwm_output[0] = pwm_output[1] = pwm_output[3] = 1500;
