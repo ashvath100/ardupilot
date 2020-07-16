@@ -26,7 +26,7 @@ import argparse
 from math import degrees, radians
 
 parser = argparse.ArgumentParser(description="pybullet robot")
-parser.add_argument("--vehicle", required=True, choices=['quad', 'racecar', 'iris', 'opendog', 'all'], default='iris', help="vehicle type")
+parser.add_argument("--vehicle", required=True, choices=['quad', 'racecar', 'iris', 'opendog','quadruped', 'all'], default='iris', help="vehicle type")
 parser.add_argument("--fps", type=float, default=1000.0, help="physics frame rate")
 parser.add_argument("--stadium", default=False, action='store_true', help="use stadium for world")
 
@@ -73,19 +73,17 @@ def control_racecar(pwm):
     robot.drive(throttle)
 
 last_angles = [0.0] * 12
-
 def control_joints(pwm):
     '''control a joint based bot'''
-    global last_angles
-    max_angle = radians(90)
-    joint_speed = radians(30)
+    global last_angles     
+    joint_speed = radians(180)
     pwm = pwm[0:len(robot.joints)]
-    angles = [ constrain((v-1500.0)/500.0, -1, 1) * max_angle for v in pwm ]
+    angles = [radians(((v-1500.0)*360)/500) for v in pwm ]
     current = last_angles
     max_change = joint_speed * TIME_STEP
     for i in range(len(angles)):
         angles[i] = constrain(angles[i], current[i]-max_change, current[i]+max_change)
-    robot.set_joint_positions(angles, robot.joints)
+    robot.set_joint_motor_control(robot.joints,2,positions=angles)
     last_angles = angles
 
 
@@ -101,6 +99,11 @@ elif args.vehicle == 'opendog':
     from pyrobolearn.robots import OpenDog
     robot = OpenDog(sim, urdf="models/opendog/opendog.urdf")
     control_pwm = control_joints
+elif args.vehicle == 'quadruped':
+    from pyrobolearn.robots import OpenDog
+    robot = OpenDog(sim,position=(0, 0, 2.6),urdf="models/quadruped/quadruped.urdf")
+    control_pwm = control_joints
+    position = [10, 10, 10]
 elif args.vehicle == 'all':
     from pyrobolearn.robots import OpenDog, Aibo, Ant, ANYmal, HyQ, HyQ2Max, Laikago, LittleDog, Minitaur, Pleurobot, Crab, Morphex, Rhex, SEAHexapod
     bots = [Crab, Morphex, Rhex, SEAHexapod, Aibo, Ant, ANYmal, HyQ, HyQ2Max, Laikago, LittleDog, Minitaur, Pleurobot ]
@@ -114,7 +117,6 @@ else:
 
 
 sim.set_time_step(TIME_STEP)
-
 time_now = 0
 last_velocity = None
 
