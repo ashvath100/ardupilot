@@ -9,14 +9,18 @@ void Rover::set_control_channels(void)
     channel_steer    = rc().channel(rcmap.roll()-1);
     channel_throttle = rc().channel(rcmap.throttle()-1);
     channel_lateral  = rc().channel(rcmap.yaw()-1);
-    channel_roll  = rc().channel(rcmap.roll()-1);
+    channel_roll  = rc().channel(rcmap.yaw()-1);
     channel_pitch  = rc().channel(rcmap.pitch()-1);
+    channel_gait_select = rc().channel(rcmap.forward()-1);
+    channel_control_mode = rc().channel(rcmap.lateral()-1);
 
     // set rc channel ranges
     channel_steer->set_angle(SERVO_MAX);
     channel_throttle->set_angle(100);
     channel_roll->set_angle(100);
     channel_pitch->set_angle(100);
+    channel_gait_select->set_angle(100);  // for walking robot gait select
+    channel_control_mode->set_angle(100);  // for walking robot control mode 
     if (channel_lateral != nullptr) {
         channel_lateral->set_angle(100);
     }

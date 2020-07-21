@@ -186,10 +186,39 @@ function legik(X , Y , Z)
     return ang 
 end
     
+function servo_estimate(start_time,current,last_angle)
+    count = 0
+    target = 0
+    -- for j = 1, 12 do
+    --      target = math.abs(current[j] - last_angle[j])
+    --      target_time = target * (0.24/60) * 1000 
+    --      now = os.clock()*1000
+    --      if (target_time + start_time) <= now then
+    --          count = count + 1
+    --      end
+    -- end
+    for j = 1, 12 do
+        tar = math.abs(current[j] - last_angle[j])
+        if tar > target then
+            target = tar
+        end
+    end    
+    target_time = target * (0.24/60) * 1000 
+    now = millis()
+
+    if (target_time + start_time) <= now then
+ 
+        return true
+    else
+  
+        return false
+    end
+    
+end
 
 function doik()
-    Gaitselect()
-    Seq()
+
+  
     local ans1 = bodyik(endpoints1[1]+GaitPosX[1], endpoints1[2]+GaitPosY[1], endpoints1[3]+GaitPosZ[1], L/2, W/2,GaitRotZ[1])
     local angles1 = legik(endpoints1[1]+ans1[1]+GaitPosX[1],endpoints1[2]+ans1[2]+GaitPosY[1], endpoints1[3]+ans1[3]+GaitPosZ[1])
     angles1 = {-45 + angles1[1],angles1[2],angles1[3]}
@@ -205,6 +234,14 @@ function doik()
     local ans4 = bodyik(endpoints4[1]+GaitPosX[4], endpoints4[2]+GaitPosY[4], endpoints4[3]+GaitPosZ[4], -L/2, W/2,GaitRotZ[4])
     local angles4 = legik(endpoints4[1]+ans4[1]+GaitPosX[4],endpoints4[2]+ans4[2]+GaitPosY[4], endpoints4[3]+ans4[3]+GaitPosZ[4])
     angles4 = {-135 + angles4[1],angles4[2],angles4[3]}
+    Gaitselect()
+    current = {angles1[1],angles1[2],angles1[3],angles2[1],angles2[2],angles2[3],angles3[1],angles3[2],angles3[3],angles4[1],angles4[2],angles4[3]}
+    if servo_estimate(start_time,current,last_angle) then
+        start_time = millis()
+        Seq()
+        last_angle = current
+    end
+
 
     return angles1,angles4,angles3,angles2
 end 

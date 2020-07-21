@@ -145,6 +145,9 @@ private:
     RC_Channel *channel_lateral;
     RC_Channel *channel_roll;
     RC_Channel *channel_pitch;
+    // for walking robot
+    RC_Channel *channel_gait_select;
+    RC_Channel *channel_control_mode;
 
 
     AP_Logger logger;

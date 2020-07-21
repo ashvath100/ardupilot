@@ -9,7 +9,8 @@ Mode::Mode() :
     channel_throttle(rover.channel_throttle),
     channel_lateral(rover.channel_lateral),
     channel_roll(rover.channel_roll),
-    channel_pitch(rover.channel_pitch),
+    channel_pitch(rover.channel_pitch),  // for walking robot
+    channel_gait_select(rover.channel_gait_select),
     attitude_control(rover.g2.attitude_control)
 { }
 
@@ -99,10 +100,21 @@ void Mode::get_pilot_input(float &steering_out, float &throttle_out)
     }
 }
 
+// roll_out is in the range -100 ~ +100
+// pitch_out is in the range -100 ~ +100
 void Mode::get_pilot_desired_roll_and_pitch(float &roll_out, float &pitch_out)
 {
     roll_out = rover.channel_roll->get_control_in();
     pitch_out = rover.channel_pitch->get_control_in();
+
+}
+
+// gait select is in the range -100 ~ +100
+// control mode is in the range -100 ~ +100
+void Mode::get_pilot_desired_gait_and_control_mode(float &gait_select, float &control_mode)
+{
+    gait_select = rover.channel_gait_select->get_control_in();
+    control_mode = rover.channel_control_mode->get_control_in();
 
 }
 

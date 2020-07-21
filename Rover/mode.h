@@ -143,6 +143,10 @@ protected:
     // pitch_out is in the range -100 ~ +100
     void get_pilot_desired_roll_and_pitch(float &roll_out, float &pitch_out);
 
+    // gait select is in the range -100 ~ +100
+    // control mode is in the range -100 ~ +100
+    void get_pilot_desired_gait_and_control_mode(float &gait_select, float &control_mode);
+
     // decode pilot steering and throttle inputs and return in steer_out and throttle_out arguments
     // steering_out is in the range -4500 ~ +4500 with positive numbers meaning rotate clockwise
     // throttle_out is in the range -100 ~ +100
@@ -203,6 +207,7 @@ protected:
     class RC_Channel *&channel_lateral;
     class RC_Channel *&channel_roll;
     class RC_Channel *&channel_pitch;
+    class RC_Channel *&channel_gait_select; // for walking robot 
     class AR_AttitudeControl &attitude_control;
 
     // private members for waypoint navigation

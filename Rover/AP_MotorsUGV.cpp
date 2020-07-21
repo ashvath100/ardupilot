@@ -215,6 +215,17 @@ void AP_MotorsUGV::set_pitch(float pitch)
     _pitch = constrain_float(pitch, -100.0f, 100.0f);
 }
 
+// set gait input as a value from -100 to +100
+void AP_MotorsUGV::set_gait(float gait)
+{
+    _gait = constrain_float(gait, -100.0f, 100.0f);
+}
+
+void AP_MotorsUGV::set_control_mode(float control_mode)
+{
+    _control_mode = constrain_float(control_mode, -100.0f, 100.0f);
+}
+
 // set mainsail input as a value from 0 to 100
 void AP_MotorsUGV::set_mainsail(float mainsail)
 {

@@ -132,6 +132,8 @@ Rover::Rover(void) :
     channel_lateral(nullptr),
     channel_roll(nullptr),
     channel_pitch(nullptr),
+    channel_gait_select(nullptr), // for walking robot gait select
+    channel_control_mode(nullptr), // for walking robot contol mode
     logger{g.log_bitmask},
     modes(&g.mode1),
     control_mode(&mode_initializing)
@@ -139,24 +141,33 @@ Rover::Rover(void) :
 }
 
 // get control outputs ( for use in scripting)
-bool Rover::get_control_outputs(uint8_t control, float &speed)
+bool Rover::get_control_outputs(uint8_t selector, float &parameter)
 {
-    if (control == 1) {
-        speed = g2.motors.get_throttle();
+    if (selector == 1) {
+        parameter = g2.motors.get_throttle();
         return true;
     }
-    if (control == 2) {
-        speed = g2.motors.get_steering();
+    if (selector == 2) {
+        parameter = g2.motors.get_steering();
         return true;
     }
-    if (control == 3) {
-        speed = g2.motors.get_roll();
+    if (selector == 3) {
+        parameter = g2.motors.get_roll();
         return true;
     }
-    if (control == 4) {
-        speed = g2.motors.get_pitch();
+    if (selector == 4) {
+        parameter = g2.motors.get_pitch();
         return true;
     }
+    if (selector == 5) {
+        parameter = g2.motors.get_gait();
+    return true;
+    }
+    if (selector == 6) {
+        parameter = g2.motors.get_control_mode();
+    return true;
+    }
+    
     else
     {
         return false;

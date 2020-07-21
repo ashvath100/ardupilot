@@ -68,6 +68,14 @@ public:
     float get_pitch() const { return _pitch; }
     void set_pitch(float pitch);
 
+    // get gait as a value from -100 to 100
+    float get_gait() const { return _gait; }
+    void set_gait(float gait) ;
+
+    // get control mode as a value from -100 to 100
+    float get_control_mode() const { return _control_mode; }
+    void set_control_mode(float control_mode) ;
+
     // set lateral input as a value from -100 to +100
     void set_lateral(float lateral);
 
@@ -187,6 +195,8 @@ protected:
     float   _throttle;  // requested throttle as a value from -100 to 100
     float   _roll;  // requested throttle as a value from -100 to 100
     float   _pitch;  // requested pitch as a value from -100 to 100
+    float   _gait;   // requested gait as a value from -100 to 100
+    float   _control_mode; // // requested control mode as a value from -100 to 100
     float   _throttle_prev; // throttle input from previous iteration
     bool    _scale_steering = true; // true if we should scale steering by speed or angle
     float   _lateral;  // requested lateral input as a value from -100 to +100
