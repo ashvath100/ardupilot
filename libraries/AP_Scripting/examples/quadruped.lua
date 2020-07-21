@@ -63,13 +63,14 @@ function Gaitselect()
         TLDivFactor = 4   
         StepsInGait = 6    
     elseif (GaitType == 1) then
-        GaitLegNr = {6,1,16,11}
-        NrLiftedPos = 5
-        FrontDownPos = 3	
+        
+        GaitLegNr = {8,15,1,22}
+        NrLiftedPos = 3
+        FrontDownPos = 2	
         LiftDivFactor = 2
         HalfLiftHeigth = 3
-        TLDivFactor = 18 
-        StepsInGait = 20
+        TLDivFactor = 24 
+        StepsInGait = 28
     end 
 end
 

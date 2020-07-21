@@ -14,13 +14,14 @@ void ModeManual::update()
     get_pilot_desired_lateral(desired_lateral);
 
     // if (rover.is_walkingrobot()) {
-    //     get_pilot_desired_roll_and_pitch(desired_roll,desired_pitch);
-    // }
 
-    get_pilot_desired_roll_and_pitch(desired_roll,desired_pitch);
-    
-    //walking robot gait select and control mode 
-    get_pilot_desired_gait_and_control_mode(desired_gait, desired_control_mode);
+        //walking robot roll and pitch
+        get_pilot_desired_roll_and_pitch(desired_roll,desired_pitch);
+
+        //walking robot gait select and control mode 
+        get_pilot_desired_gait_and_control_mode(desired_gait, desired_control_mode);
+
+    // }
 
     // if vehicle is balance bot, calculate actual throttle required for balancing
     if (rover.is_balancebot()) {

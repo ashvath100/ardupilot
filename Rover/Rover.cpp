@@ -176,10 +176,10 @@ bool Rover::get_control_outputs(uint8_t selector, float &parameter)
 }
 
 // returns true if vehicle is a walkingrobot
-// bool Rover::is_walkingrobot() const
-// {
-//     return ((enum frame_class)g2.frame_class.get() == FRAME_WALKINGROBOT);
-// }
+bool Rover::is_walkingrobot() const
+{
+    return ((enum frame_class)g2.frame_class.get() == FRAME_WALKINGROBOT);
+}
 
 
 // set target location (for use by scripting)

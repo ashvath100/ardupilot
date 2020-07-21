@@ -101,7 +101,7 @@ elif args.vehicle == 'opendog':
     control_pwm = control_joints
 elif args.vehicle == 'quadruped':
     from pyrobolearn.robots import OpenDog
-    robot = OpenDog(sim,position=(0, 0, 2.6),urdf="models/quadruped/quadruped.urdf")
+    robot = OpenDog(sim,position=(0, 0, 1.6),urdf="models/quadruped/quadruped.urdf")
     control_pwm = control_joints
     position = [10, 10, 10]
 elif args.vehicle == 'all':
