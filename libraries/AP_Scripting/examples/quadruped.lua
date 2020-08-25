@@ -1,4 +1,24 @@
--- quadruped robot script 
+-- Lua "motor driver" for a four legged (aka quadruped) walking robot
+-- 
+-- This script consumes controller outputs (i.e. roll, pitch, yaw/steering, throttle, lateral) from
+-- the vehicle code and then calculates the outputs for 12 servos controlling four legs
+--
+-- AutoPilot servo connections:
+-- Output1: front right coxa (hip) servo
+-- Output2: front right femur (thigh) servo
+-- Output3: front right tibia (shin) servo
+-- Output5: front left coxa (hip) servo
+-- Output6: front left femur (thigh) servo
+-- Output7: front left tibia (shin) servo
+-- Output8: back right coxa (hip) servo
+-- Output9: back right femur (thigh) servo
+-- Output10: back right tibia (shin) servo
+-- Output11: back left coxa (hip) servo
+-- Output12: back left femur (thigh) servo
+-- Output13: back left tibia (shin) servo
+--
+-- CAUTION: This script should only be used with ArduPilot Rover's firmware
+
 
 local FRAME_LEN = 80    -- frame length in mm
 local FRAME_WIDTH = 150 -- frame width in mm
