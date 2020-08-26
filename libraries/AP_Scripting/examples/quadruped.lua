@@ -277,18 +277,13 @@ function update()
 
     if arming:is_armed() then
         FR_angles, BL_angles, BR_angles, FL_angles = main_inverse_kinematics()
-        angles = { FR_angles[1],FR_angles[2],FR_angles[3] , FL_angles[1],FL_angles[2],FL_angles[3],BR_angles[1],BR_angles[2],BR_angles[3], BL_angles[1],BL_angles[2],BL_angles[3]}
+        angles = {FR_angles[1], FR_angles[2], FR_angles[3], FL_angles[1], FL_angles[2], FL_angles[3], BR_angles[1], BR_angles[2], BR_angles[3], BL_angles[1], BL_angles[2], BL_angles[3]}
     else
         angles = rest_angles
     end
 
-    local pwm = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-    for j = 1, 12 do
-        pwm[j] = math.floor(((angles[j] * servo_direction[j] * 1000)/90) + 1500)
-    end
-
     for i = 1, 12 do
-        SRV_Channels:set_output_pwm_chan_timeout(i-1, pwm[i], 1000)
+        SRV_Channels:set_output_pwm_chan_timeout(i-1, math.floor(((angles[i] * servo_direction[i] * 1000)/90) + 1500), 1000)
     end
 
     return update,10
