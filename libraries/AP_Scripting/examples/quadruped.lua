@@ -214,8 +214,8 @@ function leg_inverse_kinematics(x, y, z)
     return {coxa, -femur, -tibia}
 end
 
--- checks if the servo has moved to its expected postion 
-function servo_estimate(start_time,current,last_angle)
+-- checks if the servo has moved to its expected position 
+function servo_estimate()
     local target = 0
     for j = 1, 12 do
         curr_target = math.abs(current[j] - last_angle[j])
@@ -248,7 +248,7 @@ function main_inverse_kinematics()
     Gaitselect()
     current = {angles1[1],angles1[2],angles1[3],angles2[1],angles2[2],angles2[3],angles3[1],angles3[2],angles3[3],angles4[1],angles4[2],angles4[3]}
 
-    if servo_estimate(start_time, current, last_angle) then
+    if servo_estimate() then
         start_time = millis()
         calc_gait_sequence()
         last_angle = current
