@@ -7,15 +7,15 @@
 -- Output1: front right coxa (hip) servo
 -- Output2: front right femur (thigh) servo
 -- Output3: front right tibia (shin) servo
--- Output5: front left coxa (hip) servo
--- Output6: front left femur (thigh) servo
--- Output7: front left tibia (shin) servo
--- Output8: back right coxa (hip) servo
--- Output9: back right femur (thigh) servo
--- Output10: back right tibia (shin) servo
--- Output11: back left coxa (hip) servo
--- Output12: back left femur (thigh) servo
--- Output13: back left tibia (shin) servo
+-- Output4: front left coxa (hip) servo
+-- Output5: front left femur (thigh) servo
+-- Output6: front left tibia (shin) servo
+-- Output7: back right coxa (hip) servo
+-- Output8: back right femur (thigh) servo
+-- Output9: back right tibia (shin) servo
+-- Output10: back left coxa (hip) servo
+-- Output11: back left femur (thigh) servo
+-- Output12: back left tibia (shin) servo
 --
 -- CAUTION: This script should only be used with ArduPilot Rover's firmware
 
