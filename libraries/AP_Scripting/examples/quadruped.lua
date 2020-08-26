@@ -152,21 +152,21 @@ function update_leg(moving_leg)
         gait_rot_z[moving_leg] = yaw_speed/gait_lift_divisor
 
     elseif (((gait_lifted_steps==5 and (leg_step==-2 ))) and move_requested) then
-        gait_pos_x[moving_leg] = -x_speed/2
-        gait_pos_z[moving_leg] = -leg_lift_height/2
-        gait_pos_y[moving_leg] = -y_speed/2
-        gait_rot_z[moving_leg] = -yaw_speed/2
+        gait_pos_x[moving_leg] = -x_speed * 0.5
+        gait_pos_z[moving_leg] = -leg_lift_height * 0.5
+        gait_pos_y[moving_leg] = -y_speed * 0.5
+        gait_rot_z[moving_leg] = -yaw_speed * 0.5
 
     elseif ((gait_lifted_steps==5) and (leg_step==2 or leg_step==-(gait_step_total-2)) and move_requested) then
-        gait_pos_x[moving_leg] = x_speed/2
-        gait_pos_z[moving_leg] = -leg_lift_height/2
-        gait_pos_y[moving_leg] = y_speed/2
-        gait_rot_z[moving_leg] = yaw_speed/2
+        gait_pos_x[moving_leg] = x_speed * 0.5
+        gait_pos_z[moving_leg] = -leg_lift_height * 0.5
+        gait_pos_y[moving_leg] = y_speed * 0.5
+        gait_rot_z[moving_leg] = yaw_speed * 0.5
 
     elseif ((leg_step==gait_down_steps or leg_step==-(gait_step_total-gait_down_steps)) and gait_pos_y[moving_leg]<0) then
-        gait_pos_x[moving_leg] = x_speed/2
-        gait_pos_z[moving_leg] = y_speed/2
-        gait_pos_y[moving_leg] = yaw_speed/2
+        gait_pos_x[moving_leg] = x_speed * 0.5
+        gait_pos_z[moving_leg] = y_speed * 0.5
+        gait_pos_y[moving_leg] = yaw_speed * 0.5
         gait_rot_z[moving_leg] = 0
 
     else
@@ -230,19 +230,19 @@ end
 -- main_inverse_kinematics produces the inverse kinematic solution for each
 -- leg joint servo by taking into consideration the initial_pos, gait offset and the body inverse kinematic values.
 function main_inverse_kinematics()
-    local ans1 = body_forward_kinematics(endpoints1[1]+gait_pos_x[1], endpoints1[2]+gait_pos_y[1], endpoints1[3]+gait_pos_z[1], FRAME_LEN/2, FRAME_WIDTH/2,gait_rot_z[1])
+    local ans1 = body_forward_kinematics(endpoints1[1]+gait_pos_x[1], endpoints1[2]+gait_pos_y[1], endpoints1[3]+gait_pos_z[1], FRAME_LEN*0.5, FRAME_WIDTH*0.5, gait_rot_z[1])
     local angles1 = leg_inverse_kinematics(endpoints1[1]+ans1[1]+gait_pos_x[1],endpoints1[2]+ans1[2]+gait_pos_y[1], endpoints1[3]+ans1[3]+gait_pos_z[1])
     angles1 = {-45 + angles1[1],angles1[2],angles1[3]}
 
-    local ans2 = body_forward_kinematics(endpoints2[1]+gait_pos_x[2], endpoints2[2]+gait_pos_y[2], endpoints2[3]+gait_pos_z[2], FRAME_LEN/2, -FRAME_WIDTH/2,gait_rot_z[2])
+    local ans2 = body_forward_kinematics(endpoints2[1]+gait_pos_x[2], endpoints2[2]+gait_pos_y[2], endpoints2[3]+gait_pos_z[2], FRAME_LEN*0.5, -FRAME_WIDTH*0.5, gait_rot_z[2])
     local angles2 = leg_inverse_kinematics(endpoints2[1]+ans2[1]+gait_pos_x[2],endpoints2[2]+ans2[2]+gait_pos_y[2], endpoints2[3]+ans2[3]+gait_pos_z[2])
     angles2 = {-135 + angles2[1],angles2[2],angles2[3]}
 
-    local ans3 = body_forward_kinematics(endpoints3[1]+gait_pos_x[3], endpoints3[2]+gait_pos_y[3], endpoints3[3]+gait_pos_z[3], -FRAME_LEN/2, -FRAME_WIDTH/2,gait_rot_z[3])
+    local ans3 = body_forward_kinematics(endpoints3[1]+gait_pos_x[3], endpoints3[2]+gait_pos_y[3], endpoints3[3]+gait_pos_z[3], -FRAME_LEN*0.5, -FRAME_WIDTH*0.5, gait_rot_z[3])
     local angles3 = leg_inverse_kinematics(endpoints3[1]+ans3[1]+gait_pos_x[3],endpoints3[2]+ans3[2]+gait_pos_y[3], endpoints3[3]+ans3[3]+gait_pos_z[3])
     angles3 = {135 + angles3[1],angles3[2],angles3[3]}
 
-    local ans4 = body_forward_kinematics(endpoints4[1]+gait_pos_x[4], endpoints4[2]+gait_pos_y[4], endpoints4[3]+gait_pos_z[4], -FRAME_LEN/2, FRAME_WIDTH/2,gait_rot_z[4])
+    local ans4 = body_forward_kinematics(endpoints4[1]+gait_pos_x[4], endpoints4[2]+gait_pos_y[4], endpoints4[3]+gait_pos_z[4], -FRAME_LEN*0.5, FRAME_WIDTH*0.5, gait_rot_z[4])
     local angles4 = leg_inverse_kinematics(endpoints4[1]+ans4[1]+gait_pos_x[4],endpoints4[2]+ans4[2]+gait_pos_y[4], endpoints4[3]+ans4[3]+gait_pos_z[4])
     angles4 = {45 + angles4[1],angles4[2],angles4[3]}
     Gaitselect()
