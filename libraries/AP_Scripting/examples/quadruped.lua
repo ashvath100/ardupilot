@@ -37,10 +37,10 @@ local body_pos_y = 0    -- body position in the Y axis (i.e. right, left).  shou
 local body_pos_z = 0    -- body position in the Z axis (i.e. up, down).  should be -40mm to +40mm
 
 -- starting positions of the legs
-local endpoints1 = {math.cos(45/180*math.pi)*(COXA_LEN + FEMUR_LEN), math.sin(45/180*math.pi)*(COXA_LEN + FEMUR_LEN), TIBIA_LEN }
-local endpoints2 = {math.cos(45/180*math.pi)*(COXA_LEN + FEMUR_LEN), math.sin(-45/180*math.pi)*(COXA_LEN + FEMUR_LEN), TIBIA_LEN }
-local endpoints3 = {-math.cos(45/180*math.pi)*(COXA_LEN + FEMUR_LEN), math.sin(-45/180*math.pi)*(COXA_LEN + FEMUR_LEN), TIBIA_LEN }
-local endpoints4 = {-math.cos(45/180*math.pi)*(COXA_LEN + FEMUR_LEN), math.sin(45/180*math.pi)*(COXA_LEN + FEMUR_LEN), TIBIA_LEN }
+local endpoints1 = {math.cos(math.rad(45))*(COXA_LEN + FEMUR_LEN), math.sin(math.rad(45))*(COXA_LEN + FEMUR_LEN), TIBIA_LEN}
+local endpoints2 = {math.cos(math.rad(45))*(COXA_LEN + FEMUR_LEN), math.sin(math.rad(-45))*(COXA_LEN + FEMUR_LEN), TIBIA_LEN}
+local endpoints3 = {-math.cos(math.rad(45))*(COXA_LEN + FEMUR_LEN), math.sin(math.rad(-45))*(COXA_LEN + FEMUR_LEN), TIBIA_LEN}
+local endpoints4 = {-math.cos(math.rad(45))*(COXA_LEN + FEMUR_LEN), math.sin(math.rad(45))*(COXA_LEN + FEMUR_LEN), TIBIA_LEN}
 
 -- control input enum
 local control_input_roll = 1
@@ -77,7 +77,6 @@ local last_angle = {0,0,0,0,0,0,0,0,0,0,0,0}
 local current = {0,0,0,0,0,0,0,0,0,0,0,0}
 local start_time = 0
 local curr_target = 0
-local pwm = {1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500}
 
 function Gaitselect()
     if (gait_type == 0) then
@@ -187,34 +186,32 @@ function body_forward_kinematics(X, Y, Z, Xdist, Ydist, Zrot)
     local totaldist = {X + Xdist + body_pos_x, Y + Ydist + body_pos_y}
     local distBodyCenterFeet = math.sqrt(totaldist[1]^2 + totaldist[2]^2)
     local AngleBodyCenter = math.atan(totaldist[2], totaldist[1])
-    local rolly = math.tan(body_rot_y * math.pi/180) * totaldist[1]
-    local pitchy = math.tan(body_rot_x * math.pi/180) * totaldist[2]
+    local rolly = math.tan(math.rad(body_rot_y)) * totaldist[1]
+    local pitchy = math.tan(math.rad(body_rot_x)) * totaldist[2]
 
-    local ansx = math.cos(AngleBodyCenter + ((body_rot_z+Zrot)  * math.pi/180)) * distBodyCenterFeet - totaldist[1] + body_pos_x
-    local ansy = math.sin(AngleBodyCenter + ((body_rot_z+Zrot) * math.pi/180)) * distBodyCenterFeet - totaldist[2] + body_pos_y
+    local ansx = math.cos(AngleBodyCenter + math.rad(body_rot_z+Zrot)) * distBodyCenterFeet - totaldist[1] + body_pos_x
+    local ansy = math.sin(AngleBodyCenter + math.rad(body_rot_z+Zrot)) * distBodyCenterFeet - totaldist[2] + body_pos_y
     local ansz = rolly + pitchy + body_pos_z
-    local ans = {ansx, ansy, ansz}
-    return ans
+    return {ansx, ansy, ansz}
 end
 
 -- Leg Inverse Kinematics calculates the angles for each servo of each joint using the output of the
 -- body_forward_kinematics() function which gives the origin of each leg on the body frame
-function leg_inverse_kinematics(X , Y , Z)
-    local coxa = math.atan(X,Y)* 180/math.pi
-    local trueX = math.sqrt(X^2+ Y^2 ) - COXA_LEN
-    local im = math.sqrt(trueX^2 + Z^2)
+function leg_inverse_kinematics(x, y, z)
+    local coxa = math.deg(math.atan(x, y))
+    local trueX = math.sqrt(x^2 + y^2) - COXA_LEN
+    local im = math.sqrt(trueX^2 + z^2)
 
-    local q1 = -math.atan(Z,trueX)
+    local q1 = -math.atan(z, trueX)
     local d1 = FEMUR_LEN^2 - TIBIA_LEN^2 + im^2
     local d2 = 2*FEMUR_LEN*im
     local q2 = math.acos(d1/d2)
-    local femur = (q1+q2) * 180/math.pi
+    local femur = math.deg(q1+q2)
 
-    local d1 = FEMUR_LEN^2 - im^2 + TIBIA_LEN^2
-    local d2 = 2*TIBIA_LEN*FEMUR_LEN
-    local tibia = (math.acos(d1/d2)-1.57) * 180/math.pi
-    local ang = { coxa, -femur ,-tibia}
-    return ang
+    d1 = FEMUR_LEN^2 - im^2 + TIBIA_LEN^2
+    d2 = 2*TIBIA_LEN*FEMUR_LEN
+    local tibia = math.deg(math.acos(d1/d2)-math.rad(90))
+    return {coxa, -femur, -tibia}
 end
 
 -- checks if the servo has moved to its expected postion 
@@ -227,13 +224,7 @@ function servo_estimate(start_time,current,last_angle)
         end
     end
     local target_time = target * (0.24/60) * 1000
-    local now = millis()
-
-    if (target_time + start_time) <= now then
-        return true
-    else
-        return false
-    end
+    return (target_time + start_time) <= millis()
 end
 
 -- main_inverse_kinematics produces the inverse kinematic solution for each
@@ -291,6 +282,7 @@ function update()
         angles = rest_angles
     end
 
+    local pwm = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     for j = 1, 12 do
         pwm[j] = math.floor(((angles[j] * servo_direction[j] * 1000)/90) + 1500)
     end
